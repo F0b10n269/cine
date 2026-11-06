@@ -17,7 +17,7 @@ class MovieAdmin(admin.ModelAdmin):
 
 	@admin.display(description="Precio (CLP)", ordering="ticket_price")
 	def price_clp(self, obj):
-		return f"${obj.ticket_price:,}".replace(",", ".")
+		return obj.ticket_price_clp
 
 
 @admin.register(Ticket)

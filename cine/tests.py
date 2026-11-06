@@ -49,6 +49,64 @@ class CatalogDeletionTests(TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, self.movie.title)
 		self.assertContains(response, 'src="/media/posters/test.jpg"')
+		self.assertContains(response, "$5.000")
+
+	def test_homepage_searches_by_title_and_filters_by_genre_together(self):
+		action = Genre.objects.create(name="Acción")
+		other_movie = Movie.objects.create(
+			title="Otra película",
+			synopsis="Otra sinopsis",
+			duration_minutes=100,
+			release_date=date(2025, 2, 1),
+			genre=action,
+			poster="posters/other.jpg",
+			ticket_price=6000,
+			is_showing=True,
+		)
+
+		response = self.client.get("/", {"q": "Otra", "genre": action.pk})
+
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, other_movie.title)
+		self.assertNotContains(response, self.movie.title)
+
+	def test_homepage_does_not_show_movies_outside_showtime(self):
+		self.movie.is_showing = False
+		self.movie.save()
+
+		response = self.client.get("/")
+
+		self.assertEqual(response.status_code, 200)
+		self.assertNotContains(response, self.movie.title)
+
+	def test_movie_detail_displays_all_details(self):
+		response = self.client.get(f"/peliculas/{self.movie.pk}/")
+
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, self.movie.title)
+		self.assertContains(response, self.movie.synopsis)
+		self.assertContains(response, self.genre.name)
+		self.assertContains(response, "120 minutos")
+		self.assertContains(response, "$5.000 CLP")
+		self.assertContains(response, 'src="/media/posters/test.jpg"')
+
+	def test_movie_detail_returns_404_for_missing_or_inactive_movie(self):
+		inactive_movie = Movie.objects.create(
+			title="Fuera de cartelera",
+			synopsis="Sinopsis",
+			duration_minutes=90,
+			release_date=date(2025, 3, 1),
+			genre=self.genre,
+			poster="posters/inactive.jpg",
+			ticket_price=4000,
+			is_showing=False,
+		)
+
+		self.assertEqual(
+			self.client.get(f"/peliculas/{inactive_movie.pk}/").status_code,
+			404,
+		)
+		self.assertEqual(self.client.get("/peliculas/999999/").status_code, 404)
 
 
 class AdminConfigurationTests(TestCase):

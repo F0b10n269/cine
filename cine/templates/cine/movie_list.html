@@ -1,58 +1,59 @@
-{% load static %}
-<!doctype html>
-<html lang="es">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Cartelera | Cine</title>
-    <link rel="stylesheet" href="{% static 'cine/catalog.css' %}">
-</head>
-<body>
-    <header class="site-header">
-        <a class="wordmark" href="{% url 'movie_list' %}" aria-label="Cine, inicio">
-            CINE<span>HOY</span>
-        </a>
-        <div class="header-label">PROGRAMACIÓN <i></i> SANTIAGO</div>
-        <a class="admin-link" href="/admin/">Administración</a>
-    </header>
+{% extends "cine/base.html" %}
 
-    <main class="page-shell">
-        <section class="page-heading" aria-labelledby="page-title">
-            <div>
-                <p class="eyebrow">EN SALA AHORA</p>
-                <h1 id="page-title">Cartelera<span>.</span></h1>
-            </div>
-            <p class="movie-count"><strong>{{ movies|length }}</strong> PELÍCULAS</p>
-        </section>
+{% block title %}Cartelera | CineHoy{% endblock %}
 
-        <section class="movie-grid" aria-label="Películas en cartelera">
-            {% for movie in movies %}
-                <article class="movie-card">
-                    <div class="poster-frame">
-                        {% if movie.poster %}
-                            <img src="{{ movie.poster.url }}" alt="Afiche de {{ movie.title }}" loading="lazy">
-                        {% else %}
-                            <div class="poster-missing">AFICHE NO DISPONIBLE</div>
-                        {% endif %}
-                        <span class="poster-index">{{ forloop.counter|stringformat:"02d" }}</span>
+{% block content %}
+    <section class="page-heading" aria-labelledby="page-title">
+        <div>
+            <p class="eyebrow">EN SALA AHORA</p>
+            <h1 id="page-title">Cartelera<span>.</span></h1>
+        </div>
+        <p class="movie-count"><strong>{{ movies|length }}</strong> PELÍCULAS</p>
+    </section>
+
+    <form class="catalog-filters" method="get" action="{% url 'movie_list' %}">
+        <label>
+            <span>Buscar por título</span>
+            <input type="search" name="q" value="{{ search_query }}" placeholder="Ej. Interstellar">
+        </label>
+        <label>
+            <span>Género</span>
+            <select name="genre">
+                <option value="">Todos los géneros</option>
+                {% for genre in genres %}
+                    <option value="{{ genre.pk }}"{% if selected_genre == genre.pk|stringformat:"s" %} selected{% endif %}>{{ genre.name }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <button type="submit">Buscar</button>
+    </form>
+
+    <section class="movie-grid" aria-label="Películas en cartelera">
+        {% for movie in movies %}
+            <article class="movie-card">
+                <a class="poster-frame" href="{% url 'movie_detail' movie.pk %}" aria-label="Ver detalles de {{ movie.title }}">
+                    {% if movie.poster %}
+                        <img src="{{ movie.poster.url }}" alt="Afiche de {{ movie.title }}" loading="lazy">
+                    {% else %}
+                        <div class="poster-missing">AFICHE NO DISPONIBLE</div>
+                    {% endif %}
+                    <span class="poster-index">{{ forloop.counter|stringformat:"02d" }}</span>
+                </a>
+                <div class="movie-info">
+                    <div class="movie-meta">
+                        <span>{{ movie.genre.name }}</span>
+                        <span>{{ movie.duration_minutes }} MIN</span>
                     </div>
-                    <div class="movie-info">
-                        <div class="movie-meta">
-                            <span>{{ movie.genre.name }}</span>
-                            <span>{{ movie.duration_minutes }} MIN</span>
-                        </div>
-                        <h2>{{ movie.title }}</h2>
-                        <p class="synopsis">{{ movie.synopsis|truncatewords:22 }}</p>
-                        <div class="movie-footer">
-                            <time datetime="{{ movie.release_date|date:'Y-m-d' }}">{{ movie.release_date|date:'j M Y' }}</time>
-                            <strong>${{ movie.ticket_price }} <small>CLP</small></strong>
-                        </div>
+                    <h2><a href="{% url 'movie_detail' movie.pk %}">{{ movie.title }}</a></h2>
+                    <p class="synopsis">{{ movie.synopsis|truncatewords:22 }}</p>
+                    <div class="movie-footer">
+                        <time datetime="{{ movie.release_date|date:'Y-m-d' }}">{{ movie.release_date|date:'j M Y' }}</time>
+                        <strong>{{ movie.ticket_price_clp }} <small>CLP</small></strong>
                     </div>
-                </article>
-            {% empty %}
-                <p class="empty-state">No hay películas en cartelera por ahora.</p>
-            {% endfor %}
-        </section>
-    </main>
-</body>
-</html>
+                </div>
+            </article>
+        {% empty %}
+            <p class="empty-state">No hay películas que coincidan con tu búsqueda.</p>
+        {% endfor %}
+    </section>
+{% endblock %}

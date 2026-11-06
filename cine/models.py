@@ -43,6 +43,10 @@ class Movie(models.Model):
 	def __str__(self):
 		return self.title
 
+	@property
+	def ticket_price_clp(self):
+		return f"${self.ticket_price:,}".replace(",", ".")
+
 
 class Ticket(models.Model):
 	movie = models.ForeignKey(

@@ -1,0 +1,43 @@
+{% extends "cine/base.html" %}
+
+{% block title %}{{ movie.title }} | CineHoy{% endblock %}
+
+{% block content %}
+    <article class="detail-page">
+        <a class="back-link" href="{% url 'movie_list' %}">&larr; Volver a cartelera</a>
+        <div class="detail-layout">
+            <div class="detail-poster">
+                {% if movie.poster %}
+                    <img src="{{ movie.poster.url }}" alt="Afiche de {{ movie.title }}">
+                {% else %}
+                    <div class="poster-missing">AFICHE NO DISPONIBLE</div>
+                {% endif %}
+            </div>
+            <div class="detail-info">
+                <p class="eyebrow">EN CARTELERA</p>
+                <h1>{{ movie.title }}<span>.</span></h1>
+                <p class="detail-genre">{{ movie.genre.name }}</p>
+                <h2>Sinopsis</h2>
+                <p class="detail-synopsis">{{ movie.synopsis|linebreaksbr }}</p>
+                <dl class="detail-facts">
+                    <div>
+                        <dt>Duración</dt>
+                        <dd>{{ movie.duration_minutes }} minutos</dd>
+                    </div>
+                    <div>
+                        <dt>Estreno</dt>
+                        <dd><time datetime="{{ movie.release_date|date:'Y-m-d' }}">{{ movie.release_date|date:'j F Y' }}</time></dd>
+                    </div>
+                    <div>
+                        <dt>Género</dt>
+                        <dd>{{ movie.genre.name }}</dd>
+                    </div>
+                    <div>
+                        <dt>Entrada</dt>
+                        <dd>{{ movie.ticket_price_clp }} CLP</dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+    </article>
+{% endblock %}
