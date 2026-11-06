@@ -37,6 +37,28 @@
                         <dd>{{ movie.ticket_price_clp }} CLP</dd>
                     </div>
                 </dl>
+                <section class="purchase-panel" aria-labelledby="purchase-title">
+                    <div class="purchase-heading">
+                        <div>
+                            <p class="eyebrow">ACCESO AL EVENTO</p>
+                            <h2 id="purchase-title">Compra tus entradas</h2>
+                        </div>
+                        <p class="purchase-price">{{ movie.ticket_price_clp }} <span>por entrada</span></p>
+                    </div>
+                    <form class="purchase-form" method="post">
+                        {% csrf_token %}
+                        {% for field in form %}
+                            <div class="form-field{% if field.errors %} has-error{% endif %}">
+                                {{ field.label_tag }}
+                                {{ field }}
+                                {% for error in field.errors %}
+                                    <p class="field-error">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                        <button class="purchase-button" type="submit">Comprar entradas</button>
+                    </form>
+                </section>
             </div>
         </div>
     </article>

@@ -108,6 +108,100 @@ class CatalogDeletionTests(TestCase):
 		)
 		self.assertEqual(self.client.get("/peliculas/999999/").status_code, 404)
 
+	def test_ticket_purchase_creates_ticket_and_redirects_to_confirmation(self):
+		ticket_count = Ticket.objects.count()
+
+		response = self.client.post(
+			f"/peliculas/{self.movie.pk}/",
+			{
+				"buyer_name": "Carlos Díaz",
+				"buyer_email": "carlos@example.com",
+				"quantity": 3,
+			},
+			follow=True,
+		)
+
+		self.assertEqual(response.status_code, 200)
+		self.assertFalse(response.wsgi_request.user.is_authenticated)
+		self.assertEqual(Ticket.objects.count(), ticket_count + 1)
+		ticket = Ticket.objects.latest("purchased_at")
+		self.assertEqual(ticket.unit_price, 5000)
+		self.assertEqual(response.redirect_chain, [(f"/tickets/{ticket.code}/", 302)])
+		self.assertContains(response, str(ticket.code))
+		self.assertContains(response, self.movie.title)
+		self.assertContains(response, "Carlos Díaz")
+		self.assertContains(response, "carlos@example.com")
+		self.assertContains(response, "$15.000 CLP")
+
+	def test_ticket_confirmation_shows_purchase_and_reload_does_not_duplicate(self):
+		ticket = Ticket.objects.create(
+			movie=self.movie,
+			buyer_name="Carlos Díaz",
+			buyer_email="carlos@example.com",
+			quantity=3,
+			unit_price=5000,
+		)
+		ticket_count = Ticket.objects.count()
+		self.movie.ticket_price = 7000
+		self.movie.save()
+
+		for _ in range(2):
+			response = self.client.get(f"/tickets/{ticket.code}/")
+			self.assertEqual(response.status_code, 200)
+			self.assertContains(response, str(ticket.code))
+			self.assertContains(response, self.movie.title)
+			self.assertContains(response, "Carlos Díaz")
+			self.assertContains(response, "carlos@example.com")
+			self.assertContains(response, "3 entradas")
+			self.assertContains(response, "$15.000 CLP")
+			self.assertContains(response, "Fecha y hora de compra")
+
+		self.assertEqual(Ticket.objects.count(), ticket_count)
+
+	def test_ticket_purchase_rejects_invalid_email_and_quantity(self):
+		ticket_count = Ticket.objects.count()
+		for buyer_name, email, quantity, expected_errors in (
+			("", "", "", {"buyer_name", "buyer_email", "quantity"}),
+			("Carlos Díaz", "no-es-un-correo", "2", {"buyer_email"}),
+			("Carlos Díaz", "carlos@example.com", "0", {"quantity"}),
+			("Carlos Díaz", "carlos@example.com", "11", {"quantity"}),
+		):
+			with self.subTest(email=email, quantity=quantity):
+				response = self.client.post(
+					f"/peliculas/{self.movie.pk}/",
+					{
+						"buyer_name": buyer_name,
+						"buyer_email": email,
+						"quantity": quantity,
+					},
+				)
+
+				self.assertEqual(response.status_code, 200)
+				self.assertSetEqual(
+					set(response.context["form"].errors),
+					expected_errors,
+				)
+				self.assertEqual(Ticket.objects.count(), ticket_count)
+
+	def test_ticket_purchase_accepts_quantity_boundaries(self):
+		for quantity in (1, 10):
+			with self.subTest(quantity=quantity):
+				response = self.client.post(
+					f"/peliculas/{self.movie.pk}/",
+					{
+						"buyer_name": f"Comprador {quantity}",
+						"buyer_email": f"comprador{quantity}@example.com",
+						"quantity": str(quantity),
+					},
+				)
+
+				self.assertEqual(response.status_code, 302)
+				ticket = Ticket.objects.get(
+					buyer_email=f"comprador{quantity}@example.com"
+				)
+				self.assertEqual(ticket.quantity, quantity)
+				self.assertEqual(ticket.total_price, quantity * 5000)
+
 
 class AdminConfigurationTests(TestCase):
 	def test_programming_group_has_only_requested_permissions(self):

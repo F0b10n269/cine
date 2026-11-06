@@ -1,0 +1,47 @@
+{% extends "cine/base.html" %}
+
+{% block title %}Ticket {{ ticket.code }} | CineHoy{% endblock %}
+
+{% block content %}
+    <article class="ticket-page">
+        <a class="back-link" href="{% url 'movie_detail' ticket.movie.pk %}">&larr; Volver a {{ ticket.movie.title }}</a>
+        <section class="ticket-card" aria-labelledby="ticket-title">
+            <header class="ticket-heading">
+                <p class="eyebrow">COMPRA CONFIRMADA</p>
+                <h1 id="ticket-title">Tu ticket<span>.</span></h1>
+                <p>Presenta este comprobante al ingresar a la función.</p>
+            </header>
+            <dl class="ticket-facts">
+                <div class="ticket-code">
+                    <dt>Código de compra</dt>
+                    <dd>{{ ticket.code }}</dd>
+                </div>
+                <div>
+                    <dt>Película</dt>
+                    <dd>{{ ticket.movie.title }}</dd>
+                </div>
+                <div>
+                    <dt>Comprador</dt>
+                    <dd>{{ ticket.buyer_name }}</dd>
+                </div>
+                <div>
+                    <dt>Correo</dt>
+                    <dd>{{ ticket.buyer_email }}</dd>
+                </div>
+                <div>
+                    <dt>Cantidad</dt>
+                    <dd>{{ ticket.quantity }} {% if ticket.quantity == 1 %}entrada{% else %}entradas{% endif %}</dd>
+                </div>
+                <div class="ticket-total">
+                    <dt>Total pagado</dt>
+                    <dd>{{ ticket.total_price_clp }} CLP</dd>
+                </div>
+                <div>
+                    <dt>Fecha y hora de compra</dt>
+                    <dd><time datetime="{{ ticket.purchased_at|date:'c' }}">{{ ticket.purchased_at|date:'j F Y, H:i' }}</time></dd>
+                </div>
+            </dl>
+            <a class="ticket-home" href="{% url 'movie_list' %}">Volver a cartelera</a>
+        </section>
+    </article>
+{% endblock %}

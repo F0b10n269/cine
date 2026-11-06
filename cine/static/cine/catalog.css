@@ -530,6 +530,203 @@ h1 span {
     font-family: var(--font-display);
 }
 
+.purchase-panel {
+    margin-top: 32px;
+    padding: 22px;
+    border: 1px solid rgb(69 230 245 / 22%);
+    background: rgb(7 12 22 / 58%);
+}
+
+.purchase-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.purchase-heading .eyebrow {
+    margin-bottom: 8px;
+}
+
+.purchase-heading h2 {
+    margin: 0;
+    font-size: 15px;
+}
+
+.purchase-price {
+    margin: 0;
+    color: var(--cyan);
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.purchase-price span {
+    display: block;
+    margin-top: 5px;
+    color: var(--muted);
+    font-family: var(--font-body);
+    font-size: 9px;
+    font-weight: 400;
+    text-align: right;
+}
+
+.purchase-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+}
+
+.form-field {
+    min-width: 0;
+    display: grid;
+    align-content: start;
+    gap: 7px;
+}
+
+.form-field label {
+    color: #b6c1d5;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.form-field input {
+    width: 100%;
+    min-height: 43px;
+    padding: 0 12px;
+    border: 1px solid rgb(154 166 189 / 24%);
+    border-radius: 2px;
+    background: #0c1220;
+    color: var(--ink);
+    font: 500 13px var(--font-body);
+}
+
+.form-field input:focus {
+    border-color: var(--cyan);
+    box-shadow: 0 0 15px rgb(69 230 245 / 12%);
+}
+
+.form-field.has-error input {
+    border-color: #ff6b88;
+}
+
+.field-error {
+    margin: 0;
+    color: #ff9aab;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.purchase-button,
+.ticket-home {
+    min-height: 46px;
+    padding: 0 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--cyan);
+    background: linear-gradient(110deg, rgb(69 230 245 / 15%), rgb(165 107 255 / 16%));
+    color: var(--cyan);
+    cursor: pointer;
+    font: 700 10px var(--font-display);
+    letter-spacing: 1px;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: background 180ms ease, box-shadow 180ms ease;
+}
+
+.purchase-button {
+    grid-column: 1 / -1;
+}
+
+.purchase-button:hover,
+.ticket-home:hover {
+    background: rgb(69 230 245 / 17%);
+    box-shadow: 0 0 20px rgb(69 230 245 / 20%);
+}
+
+.ticket-page {
+    width: min(760px, 100%);
+    margin: 0 auto;
+}
+
+.ticket-card {
+    padding: clamp(22px, 5vw, 48px);
+    border: 1px solid rgb(69 230 245 / 32%);
+    background: var(--panel);
+    backdrop-filter: blur(18px);
+    box-shadow: 0 0 45px rgb(69 230 245 / 8%);
+}
+
+.ticket-heading {
+    padding-bottom: 25px;
+    border-bottom: 1px solid var(--line);
+}
+
+.ticket-heading h1 {
+    font-size: clamp(38px, 7vw, 60px);
+}
+
+.ticket-heading > p:last-child {
+    margin: 14px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.ticket-facts {
+    margin: 0;
+}
+
+.ticket-facts div {
+    padding: 16px 0;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 20px;
+    border-bottom: 1px solid var(--line);
+    font-size: 12px;
+}
+
+.ticket-facts dt {
+    color: var(--muted);
+}
+
+.ticket-facts dd {
+    margin: 0;
+    color: var(--ink);
+    font-weight: 600;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+.ticket-facts .ticket-code {
+    display: block;
+    padding-block: 20px;
+}
+
+.ticket-code dd {
+    margin-top: 9px;
+    color: var(--cyan);
+    font-family: var(--font-display);
+    font-size: clamp(13px, 3vw, 19px);
+    letter-spacing: 1px;
+}
+
+.ticket-facts .ticket-total dd {
+    color: var(--cyan);
+    font-family: var(--font-display);
+    font-size: 16px;
+}
+
+.ticket-home {
+    width: 100%;
+    margin-top: 24px;
+}
+
 @media (max-width: 1050px) {
     .movie-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -693,6 +890,22 @@ h1 span {
 
     .detail-poster {
         width: min(82%, 280px);
+    }
+
+    .purchase-panel {
+        padding: 17px;
+    }
+
+    .purchase-form {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .purchase-button {
+        grid-column: auto;
+    }
+
+    .ticket-facts div:not(.ticket-code) {
+        align-items: flex-start;
     }
 
     .detail-info h1 {

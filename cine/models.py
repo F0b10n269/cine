@@ -60,6 +60,9 @@ class Ticket(models.Model):
 	quantity = models.PositiveIntegerField(
 		"cantidad de entradas", validators=[MinValueValidator(1)]
 	)
+	unit_price = models.PositiveIntegerField(
+		"precio unitario al comprar (pesos)", null=True, blank=True
+	)
 	purchased_at = models.DateTimeField("fecha y hora de compra", auto_now_add=True)
 	code = models.UUIDField("código", default=uuid.uuid4, unique=True, editable=False)
 
@@ -70,3 +73,19 @@ class Ticket(models.Model):
 
 	def __str__(self):
 		return f"{self.code} - {self.movie}"
+
+	def save(self, *args, **kwargs):
+		if self.unit_price is None:
+			self.unit_price = self.movie.ticket_price
+		super().save(*args, **kwargs)
+
+	@property
+	def total_price(self):
+		unit_price = self.unit_price
+		if unit_price is None:
+			unit_price = self.movie.ticket_price
+		return unit_price * self.quantity
+
+	@property
+	def total_price_clp(self):
+		return f"${self.total_price:,}".replace(",", ".")
